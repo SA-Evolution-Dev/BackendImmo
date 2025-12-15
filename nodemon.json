@@ -1,0 +1,15 @@
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": ["src/logs/*", "node_modules/*", "*.test.js"],
+  "exec": "node src/server.js",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "events": {
+    "restart": "clear && echo '🔄 Redémarrage du serveur...'",
+    "crash": "echo '💥 Le serveur a crashé. En attente de modifications...'"
+  },
+  "colours": true,
+  "delay": 1000
+}
