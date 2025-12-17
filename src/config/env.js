@@ -31,11 +31,11 @@ const config = {
   dbName: process.env.DB_NAME || 'myapi',
 
   // JWT
-  jwtSecret: process.env.JWT_SECRET,
-  jwtAccessExpire: process.env.JWT_ACCESS_EXPIRE || '15m',
+  jwtSecret: process.env.JWT_ACCESS_SECRET,
+  jwtAccessExpire: process.env.JWT_ACCESS_EXPIRES_IN || 900,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-  jwtRefreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
-  jwtCookieExpire: parseInt(process.env.JWT_COOKIE_EXPIRE || '7', 10),
+  jwtRefreshExpire: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  jwtCookieExpire: parseInt(process.env.JWT_COOKIE_EXPIRE || 604800, 10),
 
   // Security
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
@@ -82,7 +82,7 @@ const config = {
  * Validation des variables d'environnement critiques
  */
 const validateConfig = () => {
-  const requiredVars = ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const requiredVars = ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
 
   if (config.nodeEnv === 'production') {
     const missingVars = requiredVars.filter((varName) => !process.env[varName]);
@@ -94,8 +94,8 @@ const validateConfig = () => {
     }
 
     // Vérifier la longueur minimale des secrets
-    if (process.env.JWT_SECRET.length < 32) {
-      throw new Error('JWT_SECRET doit contenir au moins 32 caractères');
+    if (process.env.JWT_ACCESS_SECRET.length < 32) {
+      throw new Error('JWT_ACCESS_SECRET doit contenir au moins 32 caractères');
     }
 
     if (process.env.JWT_REFRESH_SECRET.length < 32) {
@@ -104,7 +104,7 @@ const validateConfig = () => {
   } else {
     // En développement, générer des secrets si absents
     if (!config.jwtSecret) {
-      console.warn('JWT_SECRET non défini. Génération d\'un secret temporaire.');
+      console.warn('JWT_REFRESH_SECRET non défini. Génération d\'un secret temporaire.');
       config.jwtSecret = 'dev_jwt_secret_' + Math.random().toString(36).substring(2);
     }
 

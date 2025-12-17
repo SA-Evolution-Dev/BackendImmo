@@ -1,7 +1,9 @@
 import userService from '../services/userService.js';
+import tokenService from '../services/tokenService.js';
 import ApiResponse from '../utils/response.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import config from '../config/env.js';
+
 
 /**
  * @desc    Inscription d'un nouvel utilisateur
@@ -12,10 +14,10 @@ export const register = asyncHandler(async (req, res) => {
   const user = await userService.createUser(req.body);
 
   // Générer les tokens
-  const tokens = userService.generateTokens(user._id);
+  const tokens = tokenService.generateTokens(user.identityKey);
 
   // Sauvegarder le refresh token
-  await userService.saveRefreshToken(user, tokens.refreshToken, req);
+  await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
 
   // Définir les cookies
   setTokenCookies(res, tokens);
@@ -31,6 +33,7 @@ export const register = asyncHandler(async (req, res) => {
   );
 });
 
+
 /**
  * @desc    Connexion d'un utilisateur
  * @route   POST /api/v1/users/login
@@ -40,13 +43,13 @@ export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // Authentifier l'utilisateur
-  const user = await userService.authenticateUser(email, password, req);
+  const user = await userService.login(email, password, req);
 
   // Générer les tokens
-  const tokens = userService.generateTokens(user._id);
+  const tokens = tokenService.generateTokens(user.identityKey);
 
   // Sauvegarder le refresh token
-  await userService.saveRefreshToken(user, tokens.refreshToken, req);
+  await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
 
   // Définir les cookies
   setTokenCookies(res, tokens);
@@ -61,6 +64,15 @@ export const login = asyncHandler(async (req, res) => {
     'Connexion réussie'
   );
 });
+
+
+
+
+
+
+
+
+
 
 /**
  * @desc    Rafraîchir les tokens

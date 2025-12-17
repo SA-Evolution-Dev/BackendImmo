@@ -16,8 +16,8 @@ connectDB();
 
 // Démarrer le serveur
 const server = app.listen(PORT, () => {
-  logger.info(`Serveur démarré sur le port ${PORT}`);
-  // logger.info(`URL: http://localhost:${PORT}`);
+  // logger.info(`Serveur démarré sur le port ${PORT}`);
+  logger.info(`URL: http://localhost:${PORT}`);
   // logger.info(`Mode: ${process.env.NODE_ENV}`);
   // logger.info(`📚 Documentation: http://localhost:${PORT}/api/v1/docs`);
 });

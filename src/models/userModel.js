@@ -1,16 +1,23 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
-import crypto from 'crypto'; // ✅ Import en haut du fichier
+import crypto from 'crypto';
 import config from '../config/env.js';
 import logger from '../utils/logger.js';
+import { v4 as uuidv4 } from 'uuid'
 
 // ═══════════════════════════════════════════════════
 // SCHEMA
 // ═══════════════════════════════════════════════════
 
-const userSchema = new mongoose.Schema(
-  {
+const userSchema = new mongoose.Schema({
+    identityKey: {
+      type: String,
+      unique: true,
+      default: () => uuidv4(),
+      immutable: true,
+      index: true
+    },
     name: {
       type: String,
       required: [true, 'Le nom est requis'],
@@ -39,7 +46,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: {
-        values: ['user', 'admin', 'moderator'],
+        values: ['user', 'client', 'admin'],
         message: '{VALUE} n\'est pas un rôle valide',
       },
       default: 'user',
@@ -52,18 +59,29 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    refreshToken: {
-      type: String,
-      select: false,
-    },
-    resetPasswordToken: {
-      type: String,
-      select: false,
-    },
-    resetPasswordExpire: {
-      type: Date,
-      select: false,
-    },
+    refreshTokens: [{
+      token: {
+        type: String,
+        required: true,
+      },
+      expiresAt: {
+        type: Date,
+        required: true,
+        index: true, // Index pour performance
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      userAgent: {
+        type: String,
+        default: 'Unknown Device',
+      },
+      ip: {
+        type: String,
+        default: null,
+      },
+    }],
   },
   {
     timestamps: true,
@@ -71,10 +89,12 @@ const userSchema = new mongoose.Schema(
       virtuals: true,
       transform: function(doc, ret) {
         delete ret.password;
-        delete ret.refreshToken;
+        delete ret.refreshTokens;
         delete ret.resetPasswordToken;
         delete ret.resetPasswordExpire;
         delete ret.__v;
+        delete ret._id;
+        delete ret.id;
         return ret;
       }
     },
@@ -131,6 +151,34 @@ userSchema.pre('findOneAndDelete', async function (next) {
 // ═══════════════════════════════════════════════════
 // METHODS
 // ═══════════════════════════════════════════════════
+
+userSchema.methods.addRefreshToken = async function (token, expiresAt, userAgent = '', ip = '') {
+  try {
+    // Ajouter le nouveau token
+    this.refreshTokens.push({
+      token,
+      expiresAt,
+      userAgent,
+      ip,
+      createdAt: new Date(),
+    });
+
+    // Limiter à 5 tokens maximum (garder les plus récents)
+    if (this.refreshTokens.length > 5) {
+      // Trier par date de création (plus récent en premier)
+      this.refreshTokens.sort((a, b) => b.createdAt - a.createdAt);
+      // Garder seulement les 5 plus récents
+      this.refreshTokens = this.refreshTokens.slice(0, 5);
+    }
+
+    await this.save();
+    
+    return this;
+  } catch (error) {
+    logger.error('Erreur lors de la comparaison du mot de passe:', error);
+    throw new Error('Erreur lors de l\'ajout du refresh token');
+  }
+};
 
 /**
  * Comparer le mot de passe
@@ -218,10 +266,6 @@ userSchema.statics.findByResetToken = function (resetToken) {
     resetPasswordExpire: { $gt: Date.now() },
   });
 };
-
-// ═══════════════════════════════════════════════════
-// MODEL
-// ═══════════════════════════════════════════════════
 
 const User = mongoose.model('User', userSchema);
 

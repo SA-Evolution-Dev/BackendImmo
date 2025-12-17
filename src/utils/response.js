@@ -136,6 +136,25 @@ class ApiResponse {
   static noContent(res) {
     return res.status(204).send();
   }
+
+  /**
+    * ERREUR BAD REQUEST (400)
+   */
+  static badRequest(res, message = 'Requête invalide', errors = null) {
+    const response = {
+      success: false,
+      message,
+      statusCode: 400,
+      timestamp: new Date().toISOString()
+    };
+
+    if (errors) {
+      response.errors = errors;
+    }
+
+    return res.status(400).json(response);
+  }
+
 }
 
 export default ApiResponse;

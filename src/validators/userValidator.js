@@ -31,9 +31,12 @@ export const registerSchema = Joi.object({
     }),
   
   role: Joi.string()
-    .valid('user', 'admin')
-    .default('user')
+    .required()
+    .valid('user', 'client', 'admin')
+    // .default('user')
 });
+
+
 
 /**
  * Schéma de validation pour la connexion
@@ -53,6 +56,17 @@ export const loginSchema = Joi.object({
       'string.empty': 'Le mot de passe est requis'
     })
 });
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Schéma de validation pour la mise à jour du profil

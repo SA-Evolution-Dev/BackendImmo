@@ -1,11 +1,107 @@
 import User from '../models/userModel.js';
-import { NotFoundError, ConflictError } from '../utils/errors.js';
+import { NotFoundError, ConflictError, AuthorizationError, AuthenticationError } from '../utils/errors.js';
 import logger from '../utils/logger.js';
 
 /**
  * Service de gestion des utilisateurs
  */
 class UserService {
+
+  /**
+   * Créer un nouvel utilisateur
+   */
+  async createUser(userData) {
+    try {
+      // Vérifier si l'email existe déjà
+      const existingUser = await User.findOne({ email: userData.email });
+
+      if (existingUser) {
+        throw new ConflictError('Un utilisateur avec cet email existe déjà');
+      }
+
+      // Créer l'utilisateur
+      const user = await User.create(userData);
+
+      // Retourner l'utilisateur sans le mot de passe
+      // const userObject = user.toObject();
+      delete user.password;
+
+      logger.info(`Nouvel utilisateur créé: ${user.email}`);
+
+      return user;
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        throw error;
+      }
+      logger.error('Erreur lors de la création de l\'utilisateur:', error);
+      throw error;
+    }
+  }
+
+
+
+   /**
+   * Authentification (méthode principale)
+   */
+  async login(email, password) {
+    try {
+      // Récupérer l'utilisateur avec le mot de passe
+      const user = await User.findOne({ email: email.toLowerCase() })
+        .select('+password');
+
+      if (!user) {
+        throw new AuthorizationError('Email ou mot de passe incorrect');
+      }
+
+      // Vérifier le mot de passe
+      const isPasswordValid = await user.comparePassword(password);
+
+      if (!isPasswordValid) {
+        throw new AuthorizationError('Email ou mot de passe incorrect');
+      }
+
+      // Vérifier si le compte est actif
+      if (!user.isActive) {
+        throw new AuthenticationError('Ce compte a été désactivé');
+      }
+
+      // Mettre à jour lastLogin
+      user.lastLogin = new Date();
+      await user.save();
+
+      logger.info('Connexion réussie', {
+        userId: user.identityKey,
+        email: user.email,
+      });
+
+      // ✅ RETOURNER L'INSTANCE MONGOOSE
+      return user;
+
+    } catch (error) {
+      logger.error('Erreur lors de l\'authentification', {
+        error: error.message,
+        email,
+      });
+      throw error;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /**
    * Récupérer tous les utilisateurs avec pagination
    */
@@ -99,36 +195,7 @@ class UserService {
     }
   }
 
-  /**
-   * Créer un nouvel utilisateur
-   */
-  async createUser(userData) {
-    try {
-      // Vérifier si l'email existe déjà
-      const existingUser = await User.findOne({ email: userData.email });
 
-      if (existingUser) {
-        throw new ConflictError('Un utilisateur avec cet email existe déjà');
-      }
-
-      // Créer l'utilisateur
-      const user = await User.create(userData);
-
-      // Retourner l'utilisateur sans le mot de passe
-      const userObject = user.toObject();
-      delete userObject.password;
-
-      logger.info(`Nouvel utilisateur créé: ${user.email}`);
-
-      return userObject;
-    } catch (error) {
-      if (error instanceof ConflictError) {
-        throw error;
-      }
-      logger.error('Erreur lors de la création de l\'utilisateur:', error);
-      throw error;
-    }
-  }
 
   /**
    * Mettre à jour un utilisateur

@@ -117,7 +117,7 @@ export const notFoundMiddleware = (req, res, _next) => {
 export const handleUncaughtErrors = () => {
   // Erreurs non capturées (synchrones)
   process.on('uncaughtException', (err) => {
-    logger.error('💥 UNCAUGHT EXCEPTION! Arrêt du serveur...', {
+    logger.error('UNCAUGHT EXCEPTION! Arrêt du serveur...', {
       message: err.message,
       stack: err.stack,
       name: err.name
@@ -129,7 +129,7 @@ export const handleUncaughtErrors = () => {
 
   // Promesses rejetées non gérées (asynchrones)
   process.on('unhandledRejection', (err) => {
-    logger.error('💥 UNHANDLED REJECTION! Arrêt du serveur...', {
+    logger.error('UNHANDLED REJECTION! Arrêt du serveur...', {
       message: err.message,
       stack: err.stack,
       name: err.name
