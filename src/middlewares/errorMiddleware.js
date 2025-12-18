@@ -75,13 +75,9 @@ export const errorMiddleware = (err, req, res, _next) => {
     });
   }
 
-  console.log("+++++++++v++++++++", process.env.NODE_ENV);
-
   // Erreur serveur par défaut (500)
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Erreur interne du serveur';
-  console.log("0000000000000000000000000");
-
 
   return res.status(statusCode).json({
     success: false,
@@ -103,7 +99,8 @@ export const errorMiddleware = (err, req, res, _next) => {
  * @param {NextFunction} _next - Fonction next (non utilisée)
  */
 export const notFoundMiddleware = (req, res, _next) => {
-  const message = `Route non trouvée: ${req.method} ${req.originalUrl}`;
+  const message = `« Une erreur est survenue. Veuillez réessayer. »`;
+  // const message = `Route non trouvée: ${req.method} ${req.originalUrl}`;
   
   logger.warn(message, {
     method: req.method,

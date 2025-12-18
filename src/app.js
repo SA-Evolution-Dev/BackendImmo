@@ -23,14 +23,28 @@ const app = express();
 app.use(helmet()); // Helmet - Sécurise les headers HTTP
 
 // CORS - Gestion des origines croisées
-app.use(
-  cors({
-    origin: config.corsOrigin,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+const allowedOrigins = [
+  'http://localhost:4200'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Autoriser les requêtes sans origine (comme les apps mobiles ou Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Autorise l'envoi de cookies/credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 heures
+};
+
+app.use(cors(corsOptions));
 
 // Rate limiting - Limite le nombre de requêtes
 const limiter = rateLimit({
@@ -93,7 +107,7 @@ app.use(`/api/${config.apiVersion}`, routes);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: `Route ${req.originalUrl} non trouvée`,
+    message: `« Une erreur est intervenue lors du traitement. Merci de réessayer ultérieurement. »`,
   });
 });
 
