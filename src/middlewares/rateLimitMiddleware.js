@@ -7,8 +7,8 @@ import logger from '../utils/logger.js';
  * Limite: 100 requêtes par 15 minutes (configurable via env)
  */
 export const limiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.maxRequests,
+  windowMs: config.rateLimitWindow,
+  max: config.rateLimitMax,
   message: {
     success: false,
     message: 'Trop de requêtes, veuillez réessayer plus tard',

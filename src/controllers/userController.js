@@ -19,9 +19,6 @@ export const register = asyncHandler(async (req, res) => {
   // Sauvegarder le refresh token
   await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
 
-  // Définir les cookies
-  setTokenCookies(res, tokens);
-
   return ApiResponse.created(
     res,
     {
@@ -51,19 +48,27 @@ export const login = asyncHandler(async (req, res) => {
   // Sauvegarder le refresh token
   await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
 
-  // Définir les cookies
-  setTokenCookies(res, tokens);
-
+  const responseData = {
+    user: user.toJSON(),
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+  }
+  
   return ApiResponse.success(
     res,
-    {
-      user: user.toJSON(),
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-    },
+    responseData,
     'Connexion réussie'
   );
 });
+
+
+
+
+
+
+
+
+
 
 
 

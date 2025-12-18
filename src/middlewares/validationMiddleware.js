@@ -1,6 +1,9 @@
 import Joi from 'joi';
 import ApiResponse from '../utils/response.js';
 import logger from '../utils/logger.js';
+// import config from '../config/env.js';
+// import { encryptResponse } from './encryption.middleware.js';
+// const IS_PRODUCTION = config.nodeEnv === 'production';
 
 /**
  * Middleware de validation avec Joi
@@ -21,10 +24,10 @@ export const validateRequest = (schema, property = 'body') => {
         type: detail.type
       }));
 
-      logger.warn('Erreur de validation', { 
+      logger.warn('Erreur de validation', {
         property, 
         errors,
-        requestBody: req[property] 
+        requestBody: req[property]
       });
 
       return ApiResponse.validationError(

@@ -63,7 +63,7 @@ export const errorMiddleware = (err, req, res, _next) => {
   // Erreur de syntaxe JSON
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return ApiResponse.badRequest(res, 'JSON invalide dans la requête');
-  }
+  }  
 
   // Erreur personnalisée avec statusCode
   if (err.statusCode) {
@@ -75,9 +75,13 @@ export const errorMiddleware = (err, req, res, _next) => {
     });
   }
 
+  console.log("+++++++++v++++++++", process.env.NODE_ENV);
+
   // Erreur serveur par défaut (500)
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Erreur interne du serveur';
+  console.log("0000000000000000000000000");
+
 
   return res.status(statusCode).json({
     success: false,

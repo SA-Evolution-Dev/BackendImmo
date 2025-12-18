@@ -41,6 +41,7 @@ const config = {
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
   maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS || '5', 10),
   lockTime: process.env.LOCK_TIME || '2h',
+  encryptKey: process.env.ENCRYPTION_KEY || 'IMxM4O45oaiQdonflVsKCnnu8Ai7yUpp',
 
   // CORS
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:4200',
