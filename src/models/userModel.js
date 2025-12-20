@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
     identityKey: {
       type: String,
       unique: true,
-      default: () => uuidv4(),
+      required: true,
+      default: function() { return uuidv4(); },
       immutable: true,
       index: true
     },
@@ -82,6 +83,18 @@ const userSchema = new mongoose.Schema({
         default: null,
       },
     }],
+     emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      select: false,
+    },
+    verificationTokenExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -106,8 +119,9 @@ const userSchema = new mongoose.Schema({
 // INDEXES
 // ═══════════════════════════════════════════════════
 
-userSchema.index({ email: 1, isActive: 1 });
-userSchema.index({ createdAt: -1 });
+// userSchema.index({ email: 1, isActive: 1 });
+// userSchema.index({ createdAt: -1 });
+// userSchema.index({ 'refreshTokens.expiresAt': 1 });
 
 // ═══════════════════════════════════════════════════
 // MIDDLEWARES
@@ -210,6 +224,19 @@ userSchema.methods.generateResetToken = function () {
 
   // Retourner le token non hashé (pour l'envoyer par email)
   return resetToken;
+};
+
+// Méthode pour générer un token de vérification
+userSchema.methods.generateVerificationToken = function() {
+  const token = crypto.randomBytes(32).toString('hex');
+  this.verificationToken = token;
+  this.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 heures
+  return token;
+};
+
+// Méthode pour vérifier si le token est valide
+userSchema.methods.isVerificationTokenValid = function() {
+  return this.verificationTokenExpires && this.verificationTokenExpires > new Date();
 };
 
 /**

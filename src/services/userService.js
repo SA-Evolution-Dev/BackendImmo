@@ -14,17 +14,25 @@ class UserService {
     try {
       // Vérifier si l'email existe déjà
       const existingUser = await User.findOne({ email: userData.email });
-
       if (existingUser) {
         throw new ConflictError('Un utilisateur avec cet email existe déjà');
       }
 
       // Créer l'utilisateur
       const user = await User.create(userData);
-
-      // Retourner l'utilisateur sans le mot de passe
-      // const userObject = user.toObject();
       delete user.password;
+
+      // Générer le token de vérification
+      const verificationToken = user.generateVerificationToken()
+      await user.save();
+
+      // Envoyer l'email de vérification
+      // try {
+      //   await sendVerificationEmail(user.email, user.name, verificationToken);
+      // } catch (emailError) {
+      //   console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      //   // On continue même si l'email échoue
+      // }
 
       logger.info(`Nouvel utilisateur créé: ${user.email}`);
 

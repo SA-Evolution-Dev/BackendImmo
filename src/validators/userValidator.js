@@ -29,14 +29,28 @@ export const registerSchema = Joi.object({
       'string.empty': 'Le mot de passe est requis',
       'string.min': 'Le mot de passe doit contenir au moins 6 caractères'
     }),
+
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('password'))
+    .required()
+    .messages({
+      'any.only': 'Les mots de passe ne correspondent pas',
+      'any.required': 'La confirmation du mot de passe est requise'
+    }),
+
+  phone: Joi.string()
+    .pattern(/^[0-9+\s()-]+$/)
+    .allow('', null)
+    .optional()
+    .messages({
+      'string.pattern.base': 'Numéro de téléphone invalide'
+    }),
   
   role: Joi.string()
     .required()
     .valid('user', 'client', 'admin')
     // .default('user')
 });
-
-
 
 /**
  * Schéma de validation pour la connexion
@@ -54,6 +68,30 @@ export const loginSchema = Joi.object({
     .required()
     .messages({
       'string.empty': 'Le mot de passe est requis'
+    })
+});
+
+// Schéma pour la réinitialisation de mot de passe
+export const resetPasswordRequestSchema = Joi.object({
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      'string.empty': 'L\'email est requis',
+      'string.email': 'Email invalide',
+      'any.required': 'L\'email est requis'
+    })
+});
+
+// Schéma pour renvoyer l'email de vérification
+export const resendVerificationSchema = Joi.object({
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      'string.empty': 'L\'email est requis',
+      'string.email': 'Email invalide',
+      'any.required': 'L\'email est requis'
     })
 });
 
