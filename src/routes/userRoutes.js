@@ -27,11 +27,15 @@ import {
   // changePasswordSchema,
   // updateRoleSchema,
 } from '../validators/userValidator.js';
+import  { upload }  from '../utils/upload.js';
 
 const router = express.Router();
 
 
-router.post('/register', validateRequest(registerSchema), register);
+router.post('/register', 
+  upload.single('corporateLogo'),
+  validateRequest(registerSchema), register);
+
 router.post('/login', validateRequest(loginSchema), login);
 
 

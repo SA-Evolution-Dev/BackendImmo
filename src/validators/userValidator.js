@@ -48,8 +48,14 @@ export const registerSchema = Joi.object({
   
   role: Joi.string()
     .required()
-    .valid('user', 'client', 'admin')
-    // .default('user')
+    .valid('user', 'client', 'admin'),
+
+  corporateName: Joi.when('role', {
+    is: 'client',
+    then: Joi.string().min(3).required(),
+    otherwise: Joi.forbidden()
+  }),
+
 });
 
 /**

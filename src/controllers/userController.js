@@ -1,5 +1,6 @@
 import userService from '../services/userService.js';
 import tokenService from '../services/tokenService.js';
+import gedService from '../services/gedService.js';
 import ApiResponse from '../utils/response.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import config from '../config/env.js';
@@ -11,6 +12,21 @@ import config from '../config/env.js';
  * @access  Public
  */
 export const register = asyncHandler(async (req, res) => {
+  let uploadedFileData = null;
+
+  // 1. Uploader le logo vers la GED si présent
+  if (req.file) {
+    uploadedFileData = await gedService.uploadFile(req.file, {
+      documentType: 'corporateLogo',
+      corporateName: req.body.corporateName
+    });
+
+    // Ajouter l'URL/ID du fichier aux données utilisateur
+    req.body.corporateLogoUrl = uploadedFileData.url || uploadedFileData.path;
+    req.body.corporateLogoId = uploadedFileData.id;
+  }
+
+
   const user = await userService.createUser(req.body);
 
   // Générer les tokens
@@ -53,7 +69,7 @@ export const login = asyncHandler(async (req, res) => {
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
   }
-  
+
   return ApiResponse.success(
     res,
     responseData,

@@ -71,6 +71,10 @@ const config = {
   },
   emailFrom: process.env.EMAIL_FROM || 'noreply@myapi.com',
 
+  // GED
+  gedApiUrl: process.env.GED_API_URL,
+  gedApiKey: process.env.GED_API_KEY,
+
   // Redis (optionnel)
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
