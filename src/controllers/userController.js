@@ -26,21 +26,17 @@ export const register = asyncHandler(async (req, res) => {
     req.body.corporateLogoId = uploadedFileData.id;
   }
 
-
   const user = await userService.createUser(req.body);
 
-  // Générer les tokens
-  const tokens = tokenService.generateTokens(user.identityKey);
-
-  // Sauvegarder le refresh token
-  await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
+  // const tokens = tokenService.generateTokens(user.identityKey); // Générer les tokens
+  // await tokenService.saveRefreshToken(user, tokens.refreshToken, req); // Sauvegarder le refresh token
 
   return ApiResponse.created(
     res,
     {
       user: user.toJSON(),
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
+      // accessToken: tokens.accessToken,
+      // refreshToken: tokens.refreshToken,
     },
     'Utilisateur créé avec succès'
   );

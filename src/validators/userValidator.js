@@ -48,10 +48,10 @@ export const registerSchema = Joi.object({
   
   role: Joi.string()
     .required()
-    .valid('user', 'client', 'admin'),
+    .valid('particulier', 'entreprise', 'admin'),
 
   corporateName: Joi.when('role', {
-    is: 'client',
+    is: 'entreprise',
     then: Joi.string().min(3).required(),
     otherwise: Joi.forbidden()
   }),

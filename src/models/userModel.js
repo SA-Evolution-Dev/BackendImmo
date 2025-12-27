@@ -47,14 +47,14 @@ const userSchema = new mongoose.Schema({
     role: {
       type: String,
       enum: {
-        values: ['user', 'client', 'master'],
+        values: ['particulier', 'entreprise', 'admin'],
         message: '{VALUE} n\'est pas un rôle valide',
       },
       default: 'user',
     },
     isActive: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     lastLogin: {
       type: Date,

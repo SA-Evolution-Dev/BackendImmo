@@ -23,8 +23,9 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
   apiVersion: process.env.API_VERSION || 'v1',
-  appName: process.env.APP_NAME || 'MyAPI',
+  appName: process.env.APP_NAME || 'X-Habitat',
   appUrl: process.env.APP_URL || 'http://localhost:5000',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4001',
 
   // Database
   mongoUri: process.env.NODE_ENV === 'test' ? process.env.MONGODB_URI_TEST : process.env.MONGODB_URI,
@@ -63,12 +64,11 @@ const config = {
   logFileMaxFiles: process.env.LOG_FILE_MAX_FILES || '14d',
 
   // Email (optionnel)
-  smtp: {
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
+  smtpService: 'Gmail',
+  smtpHost: 'smtp.gmail.com',
+  smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
+  smtpUser: process.env.SMTP_USER,
+  smtpPass: process.env.SMTP_PASS,
   emailFrom: process.env.EMAIL_FROM || 'noreply@myapi.com',
 
   // GED

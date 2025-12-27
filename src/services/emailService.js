@@ -3,14 +3,29 @@ import config from '../config/env.js';
 
 // Configuration du transporteur email
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_SECURE === 'true',
+  service: config.smtpService,
+  host: config.smtpHost,
+  port: config.smtpPort,
+  secure: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+    user: config.smtpUser,
+    pass: config.smtpPass
+  },
+  tls: {
+    rejectUnauthorized: false // Pour éviter les erreurs de certificat en dev
   }
 });
+
+// Vérification de la connexion
+transporter.verify((error, _success) => {
+  if (error) {
+    console.log('❌ Erreur de connexion email:', error);
+  } else {
+    console.log('✅ Serveur email prêt à envoyer des messages !');
+  }
+});
+
+
 
 // Template HTML de base
 const getEmailTemplate = (content) => `
@@ -49,17 +64,22 @@ const getEmailTemplate = (content) => `
   </html>
 `;
 
+
+
 // Envoyer un email de vérification
 const sendVerificationEmail = async (email, firstName, token) => {
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+  const verificationUrl = `${config.frontendUrl}/verify-email/${token}`;
+
+  console.log("verificationUrl ++", verificationUrl);
+  
 
   const content = `
     <div class="header">
-      <h1>Bienvenue sur ${process.env.APP_NAME}</h1>
+      <h1>Bienvenue sur ${config.appName}</h1>
     </div>
     <div class="content">
-      <h2>Bonjour ${firstName} ! 👋</h2>
-      <p>Merci de vous être inscrit sur ${process.env.APP_NAME}. Nous sommes ravis de vous accueillir !</p>
+      <h2>Bonjour ${firstName} ! </h2>
+      <p>Merci de vous être inscrit sur ${config.appName}. Nous sommes ravis de vous accueillir !</p>
       <p>Pour finaliser votre inscription et activer votre compte, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
       <center>
         <a href="${verificationUrl}" class="button">Vérifier mon email</a>
@@ -76,14 +96,16 @@ const sendVerificationEmail = async (email, firstName, token) => {
   `;
 
   const mailOptions = {
-    from: `"${process.env.APP_NAME}" <${process.env.SMTP_FROM}>`,
+    from: config.smtpUser,
     to: email,
-    subject: `Vérifiez votre compte ${process.env.APP_NAME}`,
+    subject: `Vérifiez votre compte ${config.appName}`,
     html: getEmailTemplate(content)
   };
 
   await transporter.sendMail(mailOptions);
 };
+
+
 
 // Envoyer un email de réinitialisation de mot de passe
 const sendPasswordResetEmail = async (email, firstName, token) => {
@@ -121,6 +143,8 @@ const sendPasswordResetEmail = async (email, firstName, token) => {
   await transporter.sendMail(mailOptions);
 };
 
+
+
 // Envoyer un email de bienvenue après vérification
 const sendWelcomeEmail = async (email, firstName) => {
   const content = `
@@ -154,8 +178,9 @@ const sendWelcomeEmail = async (email, firstName) => {
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = { 
+
+export {
   sendVerificationEmail, 
   sendPasswordResetEmail,
   sendWelcomeEmail 
-};
+}

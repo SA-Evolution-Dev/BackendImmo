@@ -1,6 +1,7 @@
 import User from '../models/userModel.js';
 import { NotFoundError, ConflictError, AuthorizationError, AuthenticationError } from '../utils/errors.js';
 import logger from '../utils/logger.js';
+import { sendVerificationEmail } from '../services/emailService.js';
 
 /**
  * Service de gestion des utilisateurs
@@ -27,12 +28,11 @@ class UserService {
       await user.save();
 
       // Envoyer l'email de vérification
-      // try {
-      //   await sendVerificationEmail(user.email, user.name, verificationToken);
-      // } catch (emailError) {
-      //   console.error('Erreur lors de l\'envoi de l\'email:', emailError);
-      //   // On continue même si l'email échoue
-      // }
+      try {
+        await sendVerificationEmail(user.email, user.name, verificationToken);
+      } catch (emailError) {
+        console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      }
 
       logger.info(`Nouvel utilisateur créé: ${user.email}`);
 
