@@ -1,9 +1,12 @@
 import userService from '../services/userService.js';
 import tokenService from '../services/tokenService.js';
 import gedService from '../services/gedService.js';
+import { sendVerificationEmail } from '../services/emailService.js';
 import ApiResponse from '../utils/response.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import config from '../config/env.js';
+import User from '../models/userModel.js';
+import crypto from 'crypto';
 
 
 /**
@@ -41,6 +44,109 @@ export const register = asyncHandler(async (req, res) => {
     'Utilisateur créé avec succès'
   );
 });
+
+
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  
+  // Rechercher l'utilisateur avec ce token
+  const user = await User.findOne({
+    verificationToken: token
+  });
+
+  // Vérifier si l'utilisateur existe
+  if (!user) {
+    return ApiResponse.error(
+      res,
+      'Token d\'activation invalide',
+      401,
+      {errorCode: 'INVALID_TOKEN', message: 'Token d\'activation invalide'}
+    );
+  }
+
+  // Vérifier si le compte est déjà activé
+  if (user.isActive) {
+    return ApiResponse.error(
+      res,
+      'Ce compte est déjà activé',
+      401,
+      {errorCode: 'ALREADY_ACTIVATED', message: 'Ce compte est déjà activé', email: user.email}
+    );
+  }
+
+  // Vérifier si le token a expiré (24h)
+  const now = new Date();
+  if (user.activationTokenExpires < now) {
+    return ApiResponse.error(
+      res,
+      'Le lien d\'activation a expiré. Veuillez demander un nouveau lien.',
+      410,
+      {errorCode: 'TOKEN_EXPIRED', message: "Le lien d'activation a expiré. Veuillez demander un nouveau lien.", email: user.email}
+    );
+  }
+
+  // Activer le compte
+  user.isActive = true;
+  user.activationToken = null;
+  user.activationTokenExpires = null;
+  await user.save();
+
+  return ApiResponse.success(
+    res,
+    { email: user.email, isActive: user.isActive },
+    'Votre compte a été activé avec succès !',
+  );
+})
+
+
+export const resendActivation = asyncHandler(async (req, res) => { 
+  const { email } = req.body;
+
+  // Validation
+  if (!email) {
+    return ApiResponse.error(
+      res,
+      'L\'email est requis',
+      500
+    );
+  }
+
+  // Rechercher l'utilisateur
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  if (!user) {
+    return ApiResponse.error(
+      res,
+      'Aucun compte trouvé avec cet email',
+      401
+    );
+  }
+
+  // Vérifier si déjà activé
+  if (user.isActive) {
+    return ApiResponse.error(
+      res,
+      'Ce compte est déjà activé',
+      401
+    );
+  }
+
+  // Générer un nouveau token
+  const newToken = crypto.randomBytes(32).toString('hex');
+  user.activationToken = newToken;
+  user.activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+  await user.save();
+
+  // Envoyer l'email
+  await sendVerificationEmail(user.email, user.name, newToken);
+
+  return ApiResponse.success(
+    res,
+    {},
+    'Un nouveau lien d\'activation a été envoyé à votre adresse email'
+  );
+
+})
 
 
 /**

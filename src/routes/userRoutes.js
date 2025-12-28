@@ -1,8 +1,18 @@
 import express from 'express';
 import {
   register,
+  verifyEmail,
+  resendActivation,
+
+
+
+
+
   login,
   refreshToken,
+
+
+
   // logout,
   // logoutAll,
   // getProfile,
@@ -22,6 +32,10 @@ import { validateRequest } from '../middlewares/validationMiddleware.js';
 // import { decryptRequest } from '../middlewares/encryption.middleware.js';
 import {
   registerSchema,
+  resendActivationSchema,
+
+
+
   loginSchema,
   // updateProfileSchema,
   // changePasswordSchema,
@@ -35,6 +49,11 @@ const router = express.Router();
 router.post('/register', 
   upload.single('corporateLogo'),
   validateRequest(registerSchema), register);
+
+router.get('/verify-email/:token', verifyEmail);
+router.post('/resend-activation', validateRequest(resendActivationSchema), resendActivation);
+
+
 
 router.post('/login', validateRequest(loginSchema), login);
 

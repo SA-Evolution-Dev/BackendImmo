@@ -71,6 +71,7 @@ const sendVerificationEmail = async (email, firstName, token) => {
   const verificationUrl = `${config.frontendUrl}/verify-email/${token}`;
 
   console.log("verificationUrl ++", verificationUrl);
+  console.log("email ++", email);
   
 
   const content = `

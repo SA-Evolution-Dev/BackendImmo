@@ -58,6 +58,17 @@ export const registerSchema = Joi.object({
 
 });
 
+export const resendActivationSchema = Joi.object({
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      'string.empty': 'L\'email est requis',
+      'string.email': 'L\'email doit être valide'
+    })
+});
+
+
 /**
  * Schéma de validation pour la connexion
  */
