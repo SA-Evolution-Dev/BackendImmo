@@ -6,10 +6,6 @@ import config from '../config/env.js';
 import logger from '../utils/logger.js';
 import { v4 as uuidv4 } from 'uuid'
 
-// ═══════════════════════════════════════════════════
-// SCHEMA
-// ═══════════════════════════════════════════════════
-
 const userSchema = new mongoose.Schema({
     identityKey: {
       type: String,

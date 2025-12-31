@@ -1,4 +1,6 @@
+/* eslint-disable prefer-const */
 import userService from '../services/userService.js';
+import entrepriseService from '../services/entrepriseService.js';
 import tokenService from '../services/tokenService.js';
 import gedService from '../services/gedService.js';
 import { sendVerificationEmail } from '../services/emailService.js';
@@ -15,24 +17,33 @@ import crypto from 'crypto';
  * @access  Public
  */
 export const register = asyncHandler(async (req, res) => {
-  let uploadedFileData = null;
-
-  // 1. Uploader le logo vers la GED si présent
-  if (req.file) {
-    uploadedFileData = await gedService.uploadFile(req.file, {
-      documentType: 'corporateLogo',
-      corporateName: req.body.corporateName
-    });
-
-    // Ajouter l'URL/ID du fichier aux données utilisateur
-    req.body.corporateLogoUrl = uploadedFileData.url || uploadedFileData.path;
-    req.body.corporateLogoId = uploadedFileData.id;
-  }
 
   const user = await userService.createUser(req.body);
+  // const tokens = tokenService.generateTokens(user.identityKey);
+  // await tokenService.saveRefreshToken(user, tokens.refreshToken, req);
 
-  // const tokens = tokenService.generateTokens(user.identityKey); // Générer les tokens
-  // await tokenService.saveRefreshToken(user, tokens.refreshToken, req); // Sauvegarder le refresh token
+  // Cas enreg. nouvelle entreprise
+  if (req.body.role === 'entreprise') {
+
+    // Uploader le logo vers la GED si présent
+    let uploadedFileData = null;
+    if (req.file) {
+      uploadedFileData = await gedService.uploadFile(req.file, {
+        documentType: 'corporateLogo',
+        corporateName: req.body.corporateName
+      });
+    }
+
+    req.body.responsableKey = user.identityKey
+    let societe = await entrepriseService.createEntreprise(req.body);
+
+    if (![null, undefined, ''].includes(uploadedFileData)) {
+      const fileUloadedData = uploadedFileData?.uploaded_files[0]
+      societe.logoFile = fileUloadedData
+      societe.save()
+    }
+  }
+
 
   return ApiResponse.created(
     res,
@@ -87,6 +98,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
   // Activer le compte
   user.isActive = true;
+  user.emailVerified = true;
   user.activationToken = null;
   user.activationTokenExpires = null;
   await user.save();

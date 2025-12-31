@@ -13,9 +13,8 @@ class GedService {
      */
     async uploadFile(file, metadata = {}) {
         try {
-            const formData = new FormData();
-
             // Ajouter le fichier
+            const formData = new FormData();
             formData.append('file', file.buffer, {
                 filename: file.originalname,
                 contentType: file.mimetype

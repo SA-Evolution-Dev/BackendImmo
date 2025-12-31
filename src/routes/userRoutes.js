@@ -45,16 +45,12 @@ import  { upload }  from '../utils/upload.js';
 
 const router = express.Router();
 
-
 router.post('/register', 
   upload.single('corporateLogo'),
   validateRequest(registerSchema), register);
 
 router.get('/verify-email/:token', verifyEmail);
 router.post('/resend-activation', validateRequest(resendActivationSchema), resendActivation);
-
-
-
 router.post('/login', validateRequest(loginSchema), login);
 
 
