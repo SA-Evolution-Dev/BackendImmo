@@ -25,8 +25,8 @@ const annonceSchema = new mongoose.Schema({
         default: 'brouillon',
     },
     description: {
-        titre: { type: String, required: true },
-        descriptionCourte: { type: String, required: false, trim: true }
+        type: String, 
+        required: true 
     },
     contact: {
         nom: { type: String, required: true },
@@ -35,57 +35,22 @@ const annonceSchema = new mongoose.Schema({
     },
     // 📍 SECTION LOCALISATION - Toutes les informations géographiques du bien
     localisation: {
-        ville: { type: String, required: false, trim: true },
-        commune: { type: String, required: false, trim: true },
-        adresse: { type: String, required: false, trim: true },
+        ville: { type: String, required: false },
+        commune: { type: String, required: false },
+        adresse: { type: String, required: false },
         latitude: { type: Number, min: -90, max: 90, default: null },
         longitude: { type: Number, min: -180, max: 180, default: null },
     },
-    usage: {
+    type: {
         type: String,
         enum: {
-            values: ['habitation', 'bureaux', 'commerce', 'mixte'],
-            message: '{VALUE} n\'est pas un usage valide',
+            values: ['appartement', 'villa', 'studio'],
+            message: '{VALUE} n\'est pas un type de bien valide',
         },
-        required: true
-    },
-    // 💰 SECTION INFORMATIONS COMMERCIALES - Tout ce qui concerne le prix et la transaction
-    transaction: {
-        typeTransaction: {
-            type: String,
-            enum: {
-                values: ['vente', 'location', 'vente-location'],
-                message: '{VALUE} n\'est pas un typeTransaction valide',
-            },
-            required: true,
-        },
-        prix: {
-            type: Number,
-            required: true,
-        },
-        devise: {
-            type: String,
-            required: false,
-            default: 'XOF',
-        },
-        prixNegociable: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        /** @example (= 2 mois de loyer) */
-        caution: {
-            type: String,
-            required: false,
-            default: false,
-        }
+        required: true 
     },
     // 🏘️ SECTION COMPOSITION - Nombre et type de pièces du bien
     composition: {
-        /**
-         * Exclut: cuisine, salle de bain, WC, couloirs
-         * @example 5 (pour un F5 ou T5)
-         */
         nombrePieces: {
             type: Number,
             required: true,
@@ -95,14 +60,6 @@ const annonceSchema = new mongoose.Schema({
             required: true,
         },
         nombreSallesBain: {
-            type: Number,
-            required: true,
-        },
-        nombreSallesEau: {
-            type: Number,
-            required: true,
-        },
-        nombreWC: {
             type: Number,
             required: true,
         },
@@ -126,27 +83,57 @@ const annonceSchema = new mongoose.Schema({
             type: Boolean,
             required: false,
         },
-    },
-    // 🏢 SECTION CARACTÉRISTIQUES DU BÂTIMENT - Informations sur l'immeuble et la construction
-    batiment: {
-        etage: {
-            type: String,
-            enum: {
-                values: ['rez-de-chaussée', 'sous-sol', '1er etage'],
-                message: '{VALUE} n\'est pas un etage valide',
-            },
-            required: false,
-        },
-        nombreEtages: {
-            type: Number,
-            required: false,
-        },
-        ascenseur: {
+        gardien: {
             type: Boolean,
             required: false,
         },
-        anneConstruction: {
+    },
+    // 💰 SECTION INFORMATIONS COMMERCIALES - Tout ce qui concerne le prix et la transaction
+    transaction: {
+        typeTransaction: {
+            type: String,
+            enum: {
+                values: ['vente', 'location', 'location-vente'],
+                message: '{VALUE} n\'est pas un typeTransaction valide',
+            },
+            required: true,
+        },
+        prix: {
             type: Number,
+            required: true,
+        },
+        periode: { //  nest disponible que si nous somme dans un cas de location
+            type: String,
+            enum: {
+                values: ['MOIS', 'ANNUEL'],
+                message: '{VALUE} n\'est pas un periode valide',
+            }
+        },
+        devise: {
+            type: String,
+            required: false,
+            default: 'FCFA',
+        },
+        prixNegociable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        caution: {
+            type: String,
+            required: false,
+            default: false,
+        },
+        avance: {
+            type: String,
+            required: false,
+            default: false,
+        }
+    },
+    // 🏢 SECTION CARACTÉRISTIQUES DU BÂTIMENT - Informations sur l'immeuble et la construction
+    batiment: {
+        anneConstruction: {
+            type: String,
             required: false,
         },
         etatConstruction: {
@@ -165,11 +152,7 @@ const annonceSchema = new mongoose.Schema({
             },
             required: false,
         },
-        gardien: {
-            type: Boolean,
-            required: false,
-        },
-    },
+    },    
     // 🛠️ SECTION ÉQUIPEMENTS INTÉRIEURS - Tous les équipements et aménagements internes
     equipementsInterieurs: {
         cuisineEquipee: {
@@ -203,23 +186,7 @@ const annonceSchema = new mongoose.Schema({
             type: Boolean,
             required: false,
         },
-        terrasse: {
-            type: Boolean,
-            required: false,
-        },
-        balcon: {
-            type: Boolean,
-            required: false,
-        },
         piscine: {
-            type: Boolean,
-            required: false,
-        },
-        garage: {
-            type: Boolean,
-            required: false,
-        },
-        parking: {
             type: Boolean,
             required: false,
         }
@@ -231,13 +198,20 @@ const annonceSchema = new mongoose.Schema({
     },
     // 🎯 SECTION RÉFÉRENCEMENT & VISIBILITÉ - Options de promotion et mise en avant
     visibilite: {
+        normal: {
+            type: Boolean,
+            required: true,
+            default: true,
+        },
         exclusif: {
             type: Boolean,
-            required: false,
+            required: true,
+            default: false,
         },
         enVedette: {
             type: Boolean,
-            required: false,
+            required: true,
+            default: false,
         }
     }
 }, {
