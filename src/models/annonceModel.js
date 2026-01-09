@@ -44,126 +44,41 @@ const annonceSchema = new mongoose.Schema({
     type: {
         type: String,
         enum: {
-            values: ['appartement', 'villa', 'studio'],
+            values: ['appartement', 'villa', 'studio', 'bureau'],
             message: '{VALUE} n\'est pas un type de bien valide',
         },
         required: true 
     },
     // 🏘️ SECTION COMPOSITION - Nombre et type de pièces du bien
     composition: {
-        nombrePieces: {
-            type: Number,
-            required: true,
-        },
         nombreChambres: {
             type: Number,
             required: true,
-        },
-        nombreSallesBain: {
-            type: Number,
-            required: true,
+            min: 0
         },
         nombreSalons: {
             type: Number,
             required: true,
+            min: 0
         },
-        balcon: {
-            type: Boolean,
-            required: false,
-        },
-        salleManger: {
-            type: Boolean,
-            required: false,
-        },
-        parking: {
-            type: Boolean,
-            required: false,
-        },
-        garage: {
-            type: Boolean,
-            required: false,
-        },
-        gardien: {
-            type: Boolean,
-            required: false,
-        },
-    },
-    // 💰 SECTION INFORMATIONS COMMERCIALES - Tout ce qui concerne le prix et la transaction
-    transaction: {
-        typeTransaction: {
-            type: String,
-            enum: {
-                values: ['vente', 'location', 'location-vente'],
-                message: '{VALUE} n\'est pas un typeTransaction valide',
-            },
-            required: true,
-        },
-        prix: {
+        nombreSallesBain: {
             type: Number,
             required: true,
+            min: 0
         },
-        periode: { //  nest disponible que si nous somme dans un cas de location
-            type: String,
-            enum: {
-                values: ['MOIS', 'ANNUEL'],
-                message: '{VALUE} n\'est pas un periode valide',
-            }
+        nombreCuisine: {
+            type: Number,
+            required: true,
+            min: 0
         },
-        devise: {
-            type: String,
-            required: false,
-            default: 'FCFA',
-        },
-        prixNegociable: {
+        toilettesVisiteurs: {
             type: Boolean,
             required: false,
-            default: false,
         },
-        caution: {
-            type: String,
-            required: false,
-            default: false,
-        },
-        avance: {
-            type: String,
-            required: false,
-            default: false,
-        }
     },
-    // 🏢 SECTION CARACTÉRISTIQUES DU BÂTIMENT - Informations sur l'immeuble et la construction
-    batiment: {
-        anneConstruction: {
-            type: String,
-            required: false,
-        },
-        etatConstruction: {
-            type: String,
-            enum: {
-                values: ['neuf', 'bon', 'a-renover', 'en-construction'],
-                message: '{VALUE} n\'est pas un etatConstruction valide',
-            },
-            required: false,
-        },
-        typeConstruction: {
-            type: String,
-            enum: {
-                values: ['traditionnel', 'moderne'],
-                message: '{VALUE} n\'est pas un typeConstruction valide',
-            },
-            required: false,
-        },
-    },    
     // 🛠️ SECTION ÉQUIPEMENTS INTÉRIEURS - Tous les équipements et aménagements internes
     equipementsInterieurs: {
         cuisineEquipee: {
-            type: Boolean,
-            required: false,
-        },
-        refrigerateur: {
-            type: Boolean,
-            required: false,
-        },
-        microOndes: {
             type: Boolean,
             required: false,
         },
@@ -178,40 +93,160 @@ const annonceSchema = new mongoose.Schema({
         climatisation: {
             type: Boolean,
             required: false,
-        }
+        },
+        placard: {
+            type: Boolean,
+            required: false,
+        },
+        chauffeEau: {
+            type: Boolean,
+            required: false,
+        },
     },
     // 🌳 SECTION ÉQUIPEMENTS EXTÉRIEURS - Aménagements et espaces extérieurs
     equipementsExterieurs: {
         jardin: {
             type: Boolean,
-            required: false,
+            default: false
+        },
+        cour: {
+            type: Boolean,
+            default: false
         },
         piscine: {
             type: Boolean,
+            default: false
+        },
+        parking: {
+            type: Boolean,
+            default: false
+        },
+        garage: {
+            type: Boolean,
+            default: false
+        },
+        balcon: {
+            type: Boolean,
+            default: false
+        },
+        terrasse: {
+            type: Boolean,
+            default: false
+        },
+        groupeElectrogene: {
+            type: Boolean,
+            default: false
+        },
+        gardien: {
+            type: Boolean,
+            default: false
+        }
+    },
+    // 💰 SECTION INFORMATIONS COMMERCIALES - Tout ce qui concerne le prix et la transaction
+    transaction: {
+        typeTransaction: {
+            type: String,
+            enum: {
+                values: ['vente', 'location'],
+                message: '{VALUE} n\'est pas un typeTransaction valide',
+            },
+            required: true,
+        },
+        prix: {
+            type: Number,
+            required: true,
+        },
+        periodicite: {
+            type: String,
+            enum: ['MOIS', 'ANNUEL'],
+            required: function () {
+            return this.typeTransaction !== 'vente'
+            }
+        },
+        devise: {
+            type: String,
             required: false,
+            default: 'FCFA',
+        },
+        prixNegociable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        caution: {
+            type: Number, // nombre de mois
+            default: 0
+        },
+        avance: {
+            type: Number, // nombre de mois
+            default: 0
+        }
+    },
+    // 🏢 SECTION CARACTÉRISTIQUES DU BÂTIMENT - Informations sur l'immeuble et la construction
+    batiment: {
+        anneeConstruction: {
+            type: Number,
+            min: 1900,
+            max: new Date().getFullYear()
+        },
+        etatConstruction: {
+            type: String,
+            enum: [
+                'neuf',
+                'bon',
+                'renove',
+                'a-renover',
+                'en-construction'
+            ]
+        },
+        typeConstruction: {
+            type: String,
+            enum: [
+                'traditionnel',
+                'semi-moderne',
+                'moderne'
+            ]
         }
     },
     // 📸 SECTION MÉDIAS
     medias: {
-        photos: [],
-        videos: [],
+        photos: [
+            {
+                url: {
+                    type: String,
+                    required: true
+                },
+                principale: {
+                    type: Boolean,
+                    default: false
+                }
+            }
+        ],
+        videos: [
+            {
+                url: {
+                    type: String,
+                    required: true
+                },
+                type: {
+                    type: String,
+                    enum: ['youtube', 'mp4', 'vimeo'],
+                    default: 'mp4'
+                }
+            }
+        ],
     },
     // 🎯 SECTION RÉFÉRENCEMENT & VISIBILITÉ - Options de promotion et mise en avant
     visibilite: {
-        normal: {
-            type: Boolean,
-            required: true,
-            default: true,
+        niveau: {
+            type: String,
+            enum: ['normal', 'exclusif'],
+            default: 'normal'
         },
-        exclusif: {
-            type: Boolean,
-            required: true,
-            default: false,
-        },
+
         enVedette: {
             type: Boolean,
-            required: true,
-            default: false,
+            default: false
         }
     }
 }, {

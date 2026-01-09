@@ -18,6 +18,12 @@ const entrepriseSchema = new mongoose.Schema({
         minlength: [2, 'Le nom doit contenir au moins 2 caractères'],
         maxlength: [100, 'Le nom ne peut pas dépasser 100 caractères'],
     },
+    //     Badge :
+    // ✅ Agence vérifiée
+    // ⚠️ Agence non vérifiée
+    rccm: {
+        type: String,
+    },
     descripton: {
         type: String,
     },
