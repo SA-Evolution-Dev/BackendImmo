@@ -24,6 +24,10 @@ const annonceSchema = new mongoose.Schema({
         },
         default: 'brouillon',
     },
+    title: {
+        type: String, 
+        required: true 
+    },
     description: {
         type: String, 
         required: true 
@@ -102,6 +106,10 @@ const annonceSchema = new mongoose.Schema({
             type: Boolean,
             required: false,
         },
+        fibreOptique: {
+            type: Boolean,
+            required: false,
+        },
     },
     // 🌳 SECTION ÉQUIPEMENTS EXTÉRIEURS - Aménagements et espaces extérieurs
     equipementsExterieurs: {
@@ -144,11 +152,11 @@ const annonceSchema = new mongoose.Schema({
     },
     // 💰 SECTION INFORMATIONS COMMERCIALES - Tout ce qui concerne le prix et la transaction
     transaction: {
-        typeTransaction: {
+        transactionType: {
             type: String,
             enum: {
                 values: ['vente', 'location'],
-                message: '{VALUE} n\'est pas un typeTransaction valide',
+                message: '{VALUE} n\'est pas un transactionType valide',
             },
             required: true,
         },
@@ -156,7 +164,7 @@ const annonceSchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
-        periodicite: {
+        periodeLoyer: {
             type: String,
             enum: ['MOIS', 'ANNUEL'],
             required: function () {
