@@ -5,7 +5,17 @@ const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
     // Filtrer les types de fichiers acceptés
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedMimes = [
+        'image/jpeg', 
+        'image/jpg', 
+        'image/png',
+        'image/gif',
+        'image/webp',
+        // Vidéos
+        'video/mp4',        // .mp4
+        'video/webm',       // .webm
+        'video/x-msvideo'   // .avi
+    ];
 
     if (allowedMimes.includes(file.mimetype)) {
         cb(null, true);
@@ -19,5 +29,6 @@ export const upload = multer({
     fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB max
+        files: 20 // Max 20 fichiers
     }
 });

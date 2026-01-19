@@ -33,9 +33,6 @@ import { validateRequest } from '../middlewares/validationMiddleware.js';
 import {
   registerSchema,
   resendActivationSchema,
-
-
-
   loginSchema,
   // updateProfileSchema,
   // changePasswordSchema,
@@ -52,14 +49,6 @@ router.post('/register',
 router.get('/verify-email/:token', verifyEmail);
 router.post('/resend-activation', validateRequest(resendActivationSchema), resendActivation);
 router.post('/login', validateRequest(loginSchema), login);
-
-
-
-
-
-
-
-
 router.post('/refresh-token', refreshToken);
 
 // ═══════════════════════════════════════════════════

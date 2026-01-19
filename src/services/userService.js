@@ -8,9 +8,6 @@ import { sendVerificationEmail } from '../services/emailService.js';
  */
 class UserService {
 
-  /**
-   * Créer un nouvel utilisateur
-   */
   async createUser(userData) {
     try {
       // Vérifier si l'email existe déjà
@@ -46,11 +43,6 @@ class UserService {
     }
   }
 
-
-
-   /**
-   * Authentification (méthode principale)
-   */
   async login(email, password) {
     try {
       // Récupérer l'utilisateur avec le mot de passe

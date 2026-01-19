@@ -65,6 +65,11 @@ const annonceSchema = new mongoose.Schema({
             required: true,
             min: 0
         },
+        nombrePieces: {
+            type: Number,
+            required: true,
+            min: 1
+        },
         nombreSallesBain: {
             type: Number,
             required: true,
@@ -216,35 +221,7 @@ const annonceSchema = new mongoose.Schema({
             ]
         }
     },
-    // 📸 SECTION MÉDIAS
-    medias: {
-        photos: [
-            {
-                url: {
-                    type: String,
-                    required: true
-                },
-                principale: {
-                    type: Boolean,
-                    default: false
-                }
-            }
-        ],
-        videos: [
-            {
-                url: {
-                    type: String,
-                    required: true
-                },
-                type: {
-                    type: String,
-                    enum: ['youtube', 'mp4', 'vimeo'],
-                    default: 'mp4'
-                }
-            }
-        ],
-    },
-    // 🎯 SECTION RÉFÉRENCEMENT & VISIBILITÉ - Options de promotion et mise en avant
+    medias: [],
     visibilite: {
         niveau: {
             type: String,
