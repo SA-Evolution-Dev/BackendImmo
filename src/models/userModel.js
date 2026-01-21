@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
       minlength: [8, 'Le mot de passe doit contenir au moins 8 caractères'],
       select: false,
     },
+    passwordChangedAt: {
+      type: Date,
+      select: false,
+    },
     role: {
       type: String,
       enum: {
@@ -138,6 +142,12 @@ userSchema.pre('save', async function (next) {
   try {
     const salt = await bcrypt.genSalt(config.bcryptRounds);
     this.password = await bcrypt.hash(this.password, salt);
+    
+    // Si le mot de passe est modifié et que ce n'est pas un nouvel utilisateur
+    if (!this.isNew) {
+      this.passwordChangedAt = Date.now() - 1000; // -1s pour être sûr que le token est créé après
+    }
+    
     logger.debug(`Mot de passe hashé pour l'utilisateur: ${this.email}`);
     next();
   } catch (error) {
@@ -204,6 +214,25 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     logger.error('Erreur lors de la comparaison du mot de passe:', error);
     throw new Error('Erreur lors de la comparaison du mot de passe');
   }
+};
+
+/**
+ * Vérifier si le mot de passe a été changé après l'émission du JWT
+ */
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    // Convertir la date en timestamp (secondes)
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    
+    // Retourne true si le mot de passe a été changé après l'émission du token
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // False signifie que le mot de passe n'a PAS été changé
+  return false;
 };
 
 /**
@@ -292,6 +321,20 @@ userSchema.statics.findByResetToken = function (resetToken) {
     resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
+};
+
+userSchema.statics.findByIdentityKey = async function(identityKey) {
+  try {
+    const user = await this.findOne({ identityKey }).select('-password');
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    throw new Error(`Erreur lors de la recherche de l'utilisateur: ${error.message}`);
+  }
 };
 
 const User = mongoose.model('User', userSchema);

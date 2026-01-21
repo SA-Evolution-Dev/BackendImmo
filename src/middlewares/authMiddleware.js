@@ -13,12 +13,10 @@ export const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   // Récupérer le token depuis le header Authorization
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
+
   // Ou depuis les cookies
   else if (req.cookies && req.cookies.accessToken) {
     token = req.cookies.accessToken;
@@ -35,10 +33,13 @@ export const protect = asyncHandler(async (req, res, next) => {
 
   try {
     // Vérifier le token
-    const decoded = jwt.verify(token, config.jwtAccessSecret);
+    const decoded = jwt.verify(token, config.jwtSecret);
+
+    console.log("lal ++++++ ttoken decode", decoded);
+    
 
     // Récupérer l'utilisateur
-    const user = await User.findById(decoded.id).select('-password');
+    const user = await User.findByIdentityKey(decoded.id);
 
     if (!user) {
       logger.warn('Token valide mais utilisateur introuvable', {

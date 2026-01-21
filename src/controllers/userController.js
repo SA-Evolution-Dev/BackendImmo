@@ -28,7 +28,7 @@ export const register = asyncHandler(async (req, res) => {
     // Uploader le logo vers la GED si présent
     let uploadedFileData = null;
     if (req.file) {
-      uploadedFileData = await gedService.uploadFile(req.file, {
+      uploadedFileData = await gedService.uploadFileLogo(req.file, {
         documentType: 'corporateLogo',
         corporateName: req.body.corporateName
       });

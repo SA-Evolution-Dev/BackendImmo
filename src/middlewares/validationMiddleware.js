@@ -33,7 +33,7 @@ export const validateRequest = (schema, property = 'body') => {
       return ApiResponse.validationError(
         res,
         errors,
-        'Les données fournies sont invalides'
+        errors[0].message
       );
     }
 
@@ -127,7 +127,7 @@ export const validateMultiple = (schemas) => {
       return ApiResponse.validationError(
         res,
         errors,
-        'Les données fournies sont invalides'
+        errors[0].message
       );
     }
 
