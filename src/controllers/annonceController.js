@@ -34,10 +34,21 @@ export const addAnnonce = asyncHandler(async (req, res) => {
         }
     }
 
+    // update nombre de pieces
     req.body.composition.nombrePieces = (
         req.body.composition.nombreChambres + 
         req.body.composition.nombreSalons
     );
+
+    // Parcourir et activer
+    req.body?.equipementsInterieurs?.forEach(equipement => {
+        req.body.equipementsInterieurs[equipement] = true;
+    });
+    
+    // Parcourir et activer
+    req.body?.equipementsExterieurs?.forEach(equipement => {
+        req.body.equipementsExterieurs[equipement] = true;
+    });
 
     const annonceData = {
         ...req.body,

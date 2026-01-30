@@ -21,8 +21,7 @@ const annonceSchema = new mongoose.Schema({
         enum: {
             values: ['brouillon', 'actif', 'termine', 'retire'],
             message: '{VALUE} n\'est pas un statut valide',
-        },
-        default: 'brouillon',
+        }
     },
     title: {
         type: String, 
