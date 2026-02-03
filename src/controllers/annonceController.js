@@ -3,11 +3,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import annonceService from '../services/annonceService.js';
 import gedService from '../services/gedService.js';
 
-export const addAnnonce = asyncHandler(async (req, res) => {
-
-    console.log("req.files", req.files);
-    console.log("req.body", req.body);
-
+export const addAnnonce = asyncHandler(async (req, res) => { 
     const uploadedMedias = [];
 
     // Gestion des fichiers (si présents)
@@ -17,8 +13,6 @@ export const addAnnonce = asyncHandler(async (req, res) => {
                 user_id: req.user.id,
                 documentType: 'annonce_media'
             });
-
-            console.log("uploadResult", uploadResult);
 
             if (uploadResult.success) {
                 uploadedMedias.push(...uploadResult.data.uploaded_files);
